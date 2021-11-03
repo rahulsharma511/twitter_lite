@@ -105,75 +105,8 @@ app.post('/post_favorites', function (req, res) {
 });
 
 
-//post_favoritesDestroy api will unlike the tweet
-app.post('/post_favoritesDestroy', function (req, res) {
-    //console.log("ID for the post to mark as fav", req.params.id);
-
-    var postID = req.body;
-    if (postID.tweet_id == null || postID.tweet_id == undefined ) {
-        return res.status(400).send("Bad Request: Invalid Post ID");
-    } else  if (!postID || !postID.hasOwnProperty('tweet_id')) {
-        return res.status(400).send({error_message: "tweet_id missing in body"});
-    }
-
-    client.post('favorites/destroy', {id: postID.tweet_id}, function (error, tweet, response) {
-//        console.log('Response', response);
-        if (error) {
-            if(error.length>0) {
-                var errorObj = error[0];
-                if (errorObj.code == 139) {
-                    return res.status(200).send("Already Disliked "+errorObj.message);
-                }
-            }
-
-            //console.log("Got error in post fav", error);
-            return res.status(500).send({error: JSON.stringify(error)});
-        }
-        //console.log(tweet);  // Tweet body.
-        return res.status(200).json(tweet);
-    });
 
 
-});
-
-//To get the count of tweet likes
-app.get('/fav_list', function (req, res) {
-
-    client.get('favorites/list', {}, function (error, tweets, response) {
-        if (!error) {
-            //console.log(tweets);
-            let template = {'<>':'div','class':'card','html':[
-              {'<>':'p','text':'Created at-     ${created_at}'},
-              {'<>':'p','text':'id-      ${id}'},
-              {'<>':'p','text':'id_str-      ${id_str}'},
-              {'<>':'p','text':'Actual tweet-      ${text}'}
-          ]};
-            let html = json2html.render(tweets,template)
-            res.send(html)
-            // return res.status(200).json(tweets);
-        } else {
-            //console.log("Error ", error);
-            return res.status(500).send({error: JSON.stringify(error)});
-        }
-    });
-
-});
-
-//To search the tweets based on user input
-app.get('/searchTweets/:query', function (req, res) {
-    var params = req.params.query;
-    console.log(params);
-    client.get('search/tweets', {q: params}, function(error, tweets, response) {
-      if(error){
-        console.log(error);
-        return res.status(500).send({error : JSON.stringify(error)});
-      }
-      if (!error) {
-        //console.log(tweets.statuses);
-        return res.status(200).json(tweets.statuses);
-      }
-    });
-  })
 
 //To get the specific tweet by TweetId
 app.get('/tweet', function (req, res) {
@@ -196,69 +129,6 @@ app.get('/tweet', function (req, res) {
         }
       });
 })
-
-
-//To delete the tweet
-app.post('/destroyTweet/:id', function (req, res) {
-    const id= req.params.id;
-    if (id == null || id == undefined ) {
-      return res.status(400).send("Bad Request: Invalid Tweet Id");
-    }
-    client.post('statuses/destroy/'+ id, function(error, tweets, response) {
-      if(error){
-        console.log(error);
-        return res.status(500).send({error : JSON.stringify(error)});
-      }
-      if (!error) {
-        return res.status(200).json(tweets);
-      }
-    });
-})
-
-
- //To Retweet a tweet
- app.post('/retweet/:id', function (req, res) {
-    const id= req.params.id;
-    client.post('statuses/retweet/'+ id, function(error, tweets, response) {
-    if(error){
-        console.log(error);
-        return res.status(500).send({error : JSON.stringify(error)});
-      }
-      if (!error) {
-        return res.status(200).json(tweets);
-      }
-    });
-})
-
-//To Unretweet a tweet
-app.post('/unretweet/:id', function (req, res) {
-    const id= req.params.id;
-    client.post('statuses/unretweet/'+ id, function(error, tweets, response) {
-      if(error){
-        console.log(error);
-        return res.status(500).send({error : JSON.stringify(error)});
-      }
-      if (!error) {
-        return res.status(200).JSON.stringify(tweets, null, 100)
-      }
-    });
-})
-
-//To get most recent retweets of the tweet specified by id
-app.get('/retweets/:id', function (req, res) {
-    var retweetid = req.params.id;
-    console.log(req.params.id);
-    client.get('statuses/retweets', {id:retweetid}, function(error, tweets, response) {
-      if(error){
-        console.log(error);
-        return res.status(500).send({error : JSON.stringify(error)});
-      }
-      if (!error) {
-        //console.log(tweets);
-        return res.status(200).json(tweets);
-      }
-    });
-  })
 
 
 

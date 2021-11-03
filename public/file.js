@@ -29,15 +29,21 @@ document.getElementById('tweetid').addEventListener('click',async ()=>{
     let value=document.getElementById('tweetidinput').value
     let senddata={tweet_id:value}
     try {
-         let data=await fetch("http://localhost:3000/post_favorites",{
-                        method:'POST',
-                        headers:{'Content-Type':"application/json" },
-                        body:JSON.stringify(senddata)
-    })
+        var data=await fetch("http://localhost:3000/post_favorites",{
+            method:'POST',
+            headers:{'Content-Type':"application/json" },
+            body:JSON.stringify(senddata)
+        })
+    } catch (error) {
+        alert("already liked")
+    }
+    
+    try{
         let processeddata= await data.json()
         console.log(processeddata)
         alert("tweet liked")
-    } catch (error) {
+    }
+    catch (error) {
         alert("already liked")
     }
     
